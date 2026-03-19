@@ -1,0 +1,22 @@
+# ambiente virtual
+venv/
+
+# arquivos do Python
+*.pyc
+__pycache__/
+
+# banco de dados local
+*.sqlite3
+
+# variáveis de ambiente (NUNCA suba isso)
+.env
+
+# arquivos de mídia (fotos dos carros)
+media/
+
+# arquivos estáticos coletados
+staticfiles/
+
+# IDE
+.vscode/
+.idea/

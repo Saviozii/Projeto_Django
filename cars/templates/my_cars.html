@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Meus Carros — Savi Garagem</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111;
+            --surface2: #181818;
+            --border: #1e1e1e;
+            --border2: #2a2a2a;
+            --accent: #e8ff00;
+            --accent2: #ff4d00;
+            --danger: #ff3b3b;
+            --text: #f0ede8;
+            --muted: #4a4a4a;
+            --muted2: #666;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        /* ── HEADER ── */
+        header {
+            padding: 1.75rem 3rem;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 2rem;
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(10,10,10,0.92);
+            backdrop-filter: blur(12px);
+        }
+
+        .back-btn {
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--muted2);
+            font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+            transition: color 0.2s;
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.9rem;
+        }
+        .back-btn:hover { color: var(--accent); border-color: var(--accent); }
+        .back-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; }
+
+        .header-mid { text-align: center; }
+
+        .page-eyebrow {
+            font-size: 0.62rem; letter-spacing: 0.25em; text-transform: uppercase;
+            color: var(--muted2); margin-bottom: 0.2rem;
+        }
+
+        .page-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2rem; letter-spacing: 0.08em; line-height: 1;
+        }
+
+        .page-title span { color: var(--accent); }
+
+        .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+
+        .stat-pill {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 0.4rem 1rem;
+            border: 1px solid var(--border2);
+            background: var(--surface);
+        }
+
+        .stat-pill-val { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; color: var(--accent); line-height: 1; }
+        .stat-pill-lbl { font-size: 0.55rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted2); }
+
+        .btn-new {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--accent); color: #000;
+            font-family: 'Bebas Neue', cursive; font-size: 0.95rem; letter-spacing: 0.1em;
+            padding: 0.6rem 1.4rem; text-decoration: none;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-new:hover { background: #d4e800; transform: translateY(-1px); }
+        .btn-new svg { width: 12px; height: 12px; stroke: #000; fill: none; }
+
+        /* ── SEARCH ── */
+        .search-bar {
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; gap: 0;
+        }
+
+        .search-wrap { position: relative; flex: 1; max-width: 480px; }
+
+        .search-input {
+            width: 100%; background: var(--surface);
+            border: 1px solid var(--border2); border-right: none;
+            color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+            padding: 0.75rem 1rem 0.75rem 2.75rem; outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: var(--accent); }
+        .search-input::placeholder { color: var(--muted); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        .search-icon {
+            position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+            width: 14px; height: 14px; stroke: var(--muted); fill: none; pointer-events: none;
+            transition: stroke 0.2s;
+        }
+        .search-wrap:focus-within .search-icon { stroke: var(--accent); }
+
+        .search-submit {
+            background: var(--surface2); border: 1px solid var(--border2); color: var(--muted2);
+            font-family: 'Bebas Neue', cursive; font-size: 0.88rem; letter-spacing: 0.1em;
+            padding: 0 1.25rem; cursor: pointer; transition: all 0.2s;
+        }
+        .search-submit:hover { color: var(--accent); border-color: var(--accent); }
+
+        .search-clear {
+            background: transparent; border: 1px solid var(--border2); border-left: none;
+            color: var(--muted2); font-size: 0.8rem; padding: 0 0.75rem;
+            text-decoration: none; display: flex; align-items: center;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .search-clear:hover { color: var(--accent2); border-color: var(--accent2); }
+
+        /* ── GRID ── */
+        .grid-wrap { padding: 2.5rem 3rem; }
+
+        .grid-label {
+            font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--muted2); margin-bottom: 1.5rem; display: block;
+        }
+
+        .car-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+        }
+
+        /* ── CARD ── */
+        .car-card {
+            background: var(--surface);
+            display: flex; flex-direction: column;
+            position: relative;
+            animation: rise 0.45s ease both;
+            transition: background 0.25s;
+        }
+
+        .car-card:nth-child(1) { animation-delay: 0.04s; }
+        .car-card:nth-child(2) { animation-delay: 0.08s; }
+        .car-card:nth-child(3) { animation-delay: 0.12s; }
+        .car-card:nth-child(4) { animation-delay: 0.16s; }
+        .car-card:nth-child(5) { animation-delay: 0.20s; }
+        .car-card:nth-child(6) { animation-delay: 0.24s; }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .car-card:hover { background: var(--surface2); }
+
+        .car-card::before {
+            content: ''; position: absolute;
+            left: 0; top: 0; bottom: 0; width: 2px;
+            background: var(--accent); transform: scaleY(0);
+            transition: transform 0.3s ease; transform-origin: bottom;
+        }
+        .car-card:hover::before { transform: scaleY(1); }
+
+        /* foto */
+        .card-photo {
+            width: 100%; aspect-ratio: 16/9;
+            overflow: hidden; position: relative;
+            background: #0c0c0c;
+        }
+
+        .card-photo img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: brightness(0.85) saturate(0.8);
+            transition: transform 0.5s ease, filter 0.4s ease;
+            display: block;
+        }
+
+        .car-card:hover .card-photo img {
+            transform: scale(1.05);
+            filter: brightness(1) saturate(1);
+        }
+
+        .card-photo-empty {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(160deg, #111 0%, #161616 100%);
+        }
+
+        .card-photo-empty svg { width: 44px; height: 44px; stroke: #222; fill: none; }
+
+        .price-badge {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 1.5rem 1rem 0.6rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%);
+            display: flex; align-items: flex-end; justify-content: space-between;
+        }
+
+        .price-badge-val {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.6rem; color: var(--accent); letter-spacing: 0.03em; line-height: 1;
+        }
+
+        .price-badge-label {
+            font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.4);
+        }
+
+        .plate-tag {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 0.75rem; letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 0.2rem 0.5rem;
+            background: rgba(0,0,0,0.5);
+        }
+
+        /* body */
+        .card-body { padding: 1.25rem 1.5rem 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.6rem; }
+
+        .card-brand-tag {
+            display: inline-block;
+            font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--accent2); border: 1px solid rgba(255,77,0,0.25);
+            padding: 0.15rem 0.45rem; align-self: flex-start;
+        }
+
+        .card-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.6rem; letter-spacing: 0.04em; line-height: 1;
+        }
+
+        .card-subtitle { font-size: 0.78rem; color: var(--muted2); font-weight: 300; }
+
+        .card-meta {
+            display: flex; gap: 1.25rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .meta-item { display: flex; flex-direction: column; gap: 0.15rem; }
+        .meta-val { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--accent); }
+        .meta-lbl { font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted2); }
+
+        .card-owner {
+            display: flex; align-items: center; gap: 0.45rem;
+            padding-top: 0.4rem;
+        }
+
+        .owner-avatar {
+            width: 22px; height: 22px;
+            background: var(--surface2); border: 1px solid var(--border2);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .owner-avatar svg { width: 11px; height: 11px; stroke: var(--muted2); fill: none; }
+        .owner-name { font-size: 0.72rem; color: var(--muted2); }
+        .owner-name strong { color: var(--text); font-weight: 500; }
+
+        /* ações */
+        .card-actions {
+            display: flex; gap: 1px;
+            background: var(--border);
+            border-top: 1px solid var(--border);
+        }
+
+        .card-action {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+            padding: 0.7rem;
+            background: var(--surface); color: var(--muted2);
+            text-decoration: none; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+            transition: all 0.2s; cursor: pointer; border: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .card-action svg { width: 13px; height: 13px; stroke: currentColor; fill: none; }
+        .card-action:hover { background: var(--surface2); color: var(--text); }
+        .card-action.view:hover { color: var(--accent); }
+        .card-action.edit:hover { color: #60a5fa; }
+        .card-action.del:hover { color: var(--danger); background: rgba(255,59,59,0.05); }
+
+        /* empty */
+        .empty {
+            grid-column: 1/-1;
+            padding: 6rem 2rem; text-align: center;
+        }
+
+        .empty-glyph {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 8rem; line-height: 1; color: #161616; user-select: none; margin-bottom: 1rem;
+        }
+
+        .empty-title { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .empty-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+        .empty-cta {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--accent); color: #000;
+            font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 0.1em;
+            padding: 0.7rem 2rem; text-decoration: none; transition: background 0.2s;
+        }
+        .empty-cta:hover { background: #d4e800; }
+
+        /* ── MODAL ── */
+        .modal-backdrop {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        .modal-backdrop.open { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            width: 100%; max-width: 420px;
+            padding: 2.5rem;
+            transform: translateY(16px) scale(0.97);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-backdrop.open .modal { transform: translateY(0) scale(1); }
+
+        .modal-icon {
+            width: 48px; height: 48px;
+            background: rgba(255,59,59,0.08);
+            border: 1px solid rgba(255,59,59,0.2);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+        .modal-icon svg { width: 22px; height: 22px; stroke: var(--danger); fill: none; }
+
+        .modal-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem; letter-spacing: 0.05em; margin-bottom: 0.5rem;
+        }
+
+        .modal-car-name { color: var(--accent); }
+
+        .modal-desc { font-size: 0.82rem; color: var(--muted2); line-height: 1.6; margin-bottom: 2rem; }
+
+        .modal-actions { display: flex; gap: 0.75rem; }
+
+        .btn-cancel {
+            flex: 1; padding: 0.8rem;
+            background: transparent; border: 1px solid var(--border2); color: var(--muted2);
+            font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover { color: var(--text); border-color: var(--text); }
+
+        .btn-confirm-delete {
+            flex: 1; padding: 0.8rem;
+            background: var(--danger); border: none; color: #fff;
+            font-family: 'Bebas Neue', cursive; font-size: 1rem; letter-spacing: 0.1em;
+            cursor: pointer; transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            width: 100%;
+        }
+        .btn-confirm-delete:hover { background: #e02020; }
+        .btn-confirm-delete svg { width: 14px; height: 14px; stroke: #fff; fill: none; }
+
+        /* footer */
+        footer {
+            padding: 1.5rem 3rem;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .footer-text { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+        @media (max-width: 640px) {
+            header { padding: 1.25rem 1.5rem; grid-template-columns: auto 1fr; }
+            .header-actions { display: none; }
+            .search-bar, .grid-wrap, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .car-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MODAL DELETE -->
+    <div class="modal-backdrop" id="deleteModal">
+        <div class="modal">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14H6L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                    <path d="M9 6V4h6v2"/>
+                </svg>
+            </div>
+            <div class="modal-title">Deletar <span class="modal-car-name" id="modalCarName"></span>?</div>
+            <p class="modal-desc">Essa ação é permanente e não pode ser desfeita. O carro será removido completamente da garagem.</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <form id="deleteForm" method="POST" style="flex:1; display:flex;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-confirm-delete">
+                        <svg viewBox="0 0 24 24" stroke-width="2.5">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14H6L5 6"/>
+                        </svg>
+                        Confirmar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <a href="{% url 'cars_view' %}" class="back-btn">
+            <svg viewBox="0 0 24 24" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 5 5 12 12 19"/>
+            </svg>
+            Voltar
+        </a>
+
+        <div class="header-mid">
+            <div class="page-eyebrow">Garagem pessoal de {{ request.user.username }}</div>
+            <div class="page-title">Meus <span>Carros</span></div>
+        </div>
+
+        <div class="header-actions">
+            <div class="stat-pill">
+                <span class="stat-pill-val">{{ cars|length }}</span>
+                <span class="stat-pill-lbl">Veículos</span>
+            </div>
+            <a href="{% url 'add_car' %}" class="btn-new">
+                <svg viewBox="0 0 24 24" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Novo
+            </a>
+        </div>
+    </header>
+
+    <!-- SEARCH -->
+    <div class="search-bar">
+        <form style="display:flex; width:100%; max-width:480px;" method="GET" action="">
+            <div class="search-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input
+                    type="text" name="search" class="search-input"
+                    placeholder="Buscar nos meus carros..."
+                    value="{{ request.GET.search }}" autocomplete="off"
+                />
+            </div>
+            <button type="submit" class="search-submit">Buscar</button>
+            {% if request.GET.search %}
+            <a href="?" class="search-clear">✕</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid-wrap">
+        <span class="grid-label">
+            {% if request.GET.search %}
+                {{ cars|length }} resultado{{ cars|length|pluralize:"s" }} para "{{ request.GET.search }}"
+            {% else %}
+                {{ cars|length }} veículo{{ cars|length|pluralize:"s" }} cadastrado{{ cars|length|pluralize:"s" }}
+            {% endif %}
+        </span>
+
+        <div class="car-grid">
+            {% for car in cars %}
+            <div class="car-card">
+
+                <div class="card-photo">
+                    {% if car.photo %}
+                        <img src="{{ car.photo_card.url }}" alt="{{ car.brand }} {{ car.model }}">
+                    {% else %}
+                        <div class="card-photo-empty">
+                            <svg viewBox="0 0 24 24" stroke-width="0.8">
+                                <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
+                                <circle cx="7.5" cy="14.5" r="2.5"/>
+                                <circle cx="16.5" cy="14.5" r="2.5"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+
+                    <div class="price-badge">
+                        <div>
+                            {% if car.value %}
+                            <div class="price-badge-label">R$</div>
+                            <div class="price-badge-val">{{ car.value|floatformat:0 }}</div>
+                            {% endif %}
+                        </div>
+                        {% if car.plate %}
+                        <div class="plate-tag">{{ car.plate }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <span class="card-brand-tag">{{ car.brand }}</span>
+                    <div class="card-title">{{ car.brand }} {{ car.model }}</div>
+                    <div class="card-subtitle">
+                        {% if car.factory_year %}Fab. {{ car.factory_year }}{% endif %}
+                        {% if car.model_year %} · Modelo {{ car.model_year }}{% endif %}
+                    </div>
+
+
+                    {% if car.bio %}
+                    <div style="
+                        font-size: 0.75rem;
+                        color: var(--muted2);
+                        line-height: 1.55;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        padding-top: 0.25rem;
+                    ">{{ car.bio }}</div>
+                    {% endif %}
+
+                    <div class="card-meta">
+                        <div class="meta-item">
+                            <span class="meta-val">{% if car.factory_year %}{{ car.factory_year }}{% else %}—{% endif %}</span>
+                            <span class="meta-lbl">Fabricação</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-val">{% if car.model_year %}{{ car.model_year }}{% else %}—{% endif %}</span>
+                            <span class="meta-lbl">Modelo</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-val">{% if car.plate %}{{ car.plate }}{% else %}—{% endif %}</span>
+                            <span class="meta-lbl">Placa</span>
+                        </div>
+                    </div>
+
+                    {% if car.dono %}
+                    <div class="card-owner">
+                        <div class="owner-avatar">
+                            <svg viewBox="0 0 24 24" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                        <span class="owner-name"><strong>{{ car.dono.username }}</strong></span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-actions">
+                    <a href="{% url 'car_infor' car.id %}" class="card-action view">
+                        <svg viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        Ver
+                    </a>
+                    <a href="{% url 'car_update' car.id %}" class="card-action edit">
+                        <svg viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Editar
+                    </a>
+                    <button
+                        class="card-action del"
+                        onclick="openModal('{% url 'car_delete' car.id %}', '{{ car.brand }} {{ car.model }}')"
+                    >
+                        <svg viewBox="0 0 24 24" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14H6L5 6"/>
+                            <path d="M10 11v6M14 11v6"/>
+                        </svg>
+                        Deletar
+                    </button>
+                </div>
+
+            </div>
+            {% empty %}
+            <div class="empty">
+                <div class="empty-glyph">00</div>
+                <div class="empty-title">Garagem vazia</div>
+                <p class="empty-sub">
+                    {% if request.GET.search %}
+                        Nenhum resultado para "{{ request.GET.search }}"
+                    {% else %}
+                        Você ainda não cadastrou nenhum carro.
+                    {% endif %}
+                </p>
+                {% if not request.GET.search %}
+                <a href="{% url 'add_car' %}" class="empty-cta">+ Adicionar primeiro carro</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer>
+        <span class="footer-text">{{ request.user.username }}</span>
+        <span class="footer-text">{{ cars|length }} veículo{{ cars|length|pluralize:"s" }}</span>
+    </footer>
+
+    <script>
+        function openModal(deleteUrl, carName) {
+            document.getElementById('modalCarName').textContent = carName;
+            document.getElementById('deleteForm').action = deleteUrl;
+            document.getElementById('deleteModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+
+</body>
+</html>

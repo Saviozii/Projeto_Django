@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Login — Savi Garagem</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --surface2: #161616;
+            --border: #222;
+            --accent: #e8ff00;
+            --accent2: #ff4d00;
+            --text: #f0ede8;
+            --muted: #555;
+            --error: #ff4d4d;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.4;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 3rem;
+            position: relative;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--accent);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 2.5rem;
+            letter-spacing: 0.05em;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+            background: linear-gradient(135deg, var(--text) 60%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo span { -webkit-text-fill-color: var(--accent); }
+
+        .subtitle {
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 2.5rem;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            padding: 0.8rem 1rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            width: 100%;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            background: #1a1a1a;
+        }
+
+        input::placeholder { color: var(--muted); }
+
+        /* erros do Django */
+        .errorlist {
+            list-style: none;
+            margin-top: 0.25rem;
+        }
+
+        .errorlist li {
+            font-size: 0.7rem;
+            color: var(--error);
+        }
+
+        .non-field-errors {
+            background: rgba(255,77,77,0.07);
+            border: 1px solid rgba(255,77,77,0.3);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--error);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            color: #000;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.2rem;
+            letter-spacing: 0.1em;
+            padding: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover { background: #d4e800; transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0 1.5rem;
+        }
+
+        .register-link {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .register-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .register-link a:hover { opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">Savi<br><span>Garagem</span></div>
+        <div class="subtitle">Acesse sua conta</div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if login_form.non_field_errors %}
+            <div class="non-field-errors">{{ login_form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="field">
+                <label for="{{ form.username.id_for_label }}">Usuário</label>
+                {{ login_form.username }}
+                {{ login_form.username.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ login_form.password.id_for_label }}">Senha</label>
+                {{ login_form.password }}
+                {{ login_form.password.errors }}
+            </div>
+
+            <button type="submit" class="btn-submit">Entrar</button>
+        </login_form>
+
+        <div class="divider"></div>
+
+        <div class="register-link">
+            Não tem conta? <a href="{% url 'register' %}">Cadastre-se</a>
+        </div>
+    </div>
+</body>
+</html>

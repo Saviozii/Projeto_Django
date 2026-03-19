@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Editar — {{ car.brand }} {{ car.model }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --surface2: #161616;
+            --border: #222;
+            --accent: #e8ff00;
+            --accent2: #ff4d00;
+            --text: #f0ede8;
+            --muted: #555;
+            --error: #ff4d4d;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 1000; opacity: 0.4;
+        }
+
+        /* ── HEADER ── */
+        header {
+            padding: 2rem 4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            position: absolute; bottom: -1px; left: 4rem;
+            width: 60px; height: 2px;
+            background: var(--accent2);
+        }
+
+        .back-link {
+            display: flex; align-items: center; gap: 0.6rem;
+            text-decoration: none; color: var(--muted);
+            font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--accent); }
+        .back-link svg { width: 14px; height: 14px; stroke: currentColor; fill: none; transition: transform 0.2s; }
+        .back-link:hover svg { transform: translateX(-3px); }
+
+        .header-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.5rem; letter-spacing: 0.08em;
+        }
+
+        .header-title span { color: var(--accent2); }
+
+        /* ── LAYOUT ── */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 2px;
+            background: var(--border);
+            min-height: calc(100vh - 73px);
+        }
+
+        .form-area { background: var(--bg); padding: 3rem 4rem; }
+        .preview-area { background: var(--surface); padding: 2.5rem 2rem; position: sticky; top: 0; align-self: start; }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 0.9rem; letter-spacing: 0.15em; color: var(--muted);
+            margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── GRID DE CAMPOS ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+        .field label {
+            font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            padding: 0.8rem 1rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            appearance: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent2);
+            background: var(--surface2);
+        }
+
+        input::placeholder { color: var(--muted); }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23555'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-color: var(--surface);
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        select option { background: #1a1a1a; }
+
+        /* foto atual */
+        .current-photo {
+            margin-bottom: 0.75rem;
+        }
+
+        .current-photo img {
+            width: 100%; max-height: 180px;
+            object-fit: cover;
+            filter: brightness(0.85);
+            display: block;
+        }
+
+        .current-photo-label {
+            font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 0.5rem;
+        }
+
+        /* upload zone */
+        .upload-zone {
+            border: 1px dashed var(--border);
+            background: var(--surface);
+            padding: 1.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+            position: relative;
+        }
+
+        .upload-zone:hover { border-color: var(--accent2); background: rgba(255,77,0,0.03); }
+
+        .upload-zone input[type="file"] {
+            position: absolute; inset: 0;
+            opacity: 0; cursor: pointer;
+            width: 100%; height: 100%; padding: 0;
+        }
+
+        .upload-icon { width: 32px; height: 32px; stroke: var(--muted); fill: none; margin: 0 auto 0.75rem; display: block; pointer-events: none; }
+        .upload-zone:hover .upload-icon { stroke: var(--accent2); }
+        .upload-label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); pointer-events: none; }
+        .upload-filename { font-size: 0.75rem; color: var(--accent2); margin-top: 0.4rem; display: none; pointer-events: none; }
+
+
+        textarea {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            padding: 0.8rem 1rem;
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        textarea:focus {
+            border-color: var(--accent2);
+            background: var(--surface2);
+        }
+        textarea::placeholder { color: var(--muted); }
+
+        /* erros */
+        .errorlist { list-style: none; margin-top: 0.25rem; }
+        .errorlist li { font-size: 0.7rem; color: var(--error); }
+
+        /* ── PREVIEW SIDEBAR ── */
+        .preview-label {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1rem; letter-spacing: 0.15em; color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .mini-card { border: 1px solid var(--border); overflow: hidden; background: #0d0d0d; }
+
+        .mini-photo { width: 100%; aspect-ratio: 16/9; background: #111; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .mini-photo img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .mini-photo svg { width: 36px; height: 36px; stroke: #2a2a2a; fill: none; }
+
+        .mini-info { padding: 1rem 1.25rem; }
+        .mini-brand { font-family: 'Bebas Neue', cursive; font-size: 1.4rem; color: var(--text); line-height: 1; margin-bottom: 0.15rem; min-height: 1.7rem; }
+        .mini-model { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; min-height: 1rem; }
+
+        .mini-stats { display: flex; gap: 1rem; border-top: 1px solid var(--border); padding-top: 0.75rem; }
+        .mini-stat { display: flex; flex-direction: column; gap: 0.15rem; }
+        .mini-stat-val { font-family: 'Bebas Neue', cursive; font-size: 0.95rem; color: var(--accent); }
+        .mini-stat-lbl { font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+        /* aviso de edição */
+        .edit-notice {
+            background: rgba(255,77,0,0.07);
+            border: 1px solid rgba(255,77,0,0.2);
+            border-left: 3px solid var(--accent2);
+            padding: 0.85rem 1rem;
+            font-size: 0.8rem;
+            color: var(--accent2);
+            margin-top: 1.5rem;
+        }
+
+        /* ── SUBMIT BAR ── */
+        .submit-bar {
+            position: sticky; bottom: 0;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            padding: 1.25rem 4rem;
+            display: flex; align-items: center; justify-content: space-between;
+            z-index: 10;
+        }
+
+        .submit-hint { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+        .btn-group { display: flex; gap: 0.75rem; align-items: center; }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex; align-items: center;
+        }
+        .btn-cancel:hover { color: var(--text); border-color: var(--text); }
+
+        .btn-save {
+            background: var(--accent2);
+            border: none; color: #fff;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.1rem; letter-spacing: 0.1em;
+            padding: 0.75rem 3rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-save:hover { background: #e63c00; transform: translateY(-1px); }
+        .btn-save svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
+
+        @media (max-width: 768px) {
+            header, .submit-bar { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .container { grid-template-columns: 1fr; }
+            .preview-area { display: none; }
+            .form-area { padding: 2rem 1.5rem; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="{% url 'car_infor' car.id %}" class="back-link">
+            <svg viewBox="0 0 24 24" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 5 5 12 12 19"/>
+            </svg>
+            Cancelar
+        </a>
+        <div class="header-title">Editar <span>{{ car.brand }} {{ car.model }}</span></div>
+        <div style="width:80px"></div>
+    </header>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="container">
+
+            <!-- ── FORMULÁRIO ── -->
+            <div class="form-area">
+
+                <div class="section-title">Identificação</div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="{{ form.brand.id_for_label }}">Marca</label>
+                        {{ form.brand }}
+                        {{ form.brand.errors }}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.model.id_for_label }}">Modelo</label>
+                        {{ form.model }}
+                        {{ form.model.errors }}
+                    </div>
+                </div>
+
+                <div class="section-title">Anos</div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="{{ form.factory_year.id_for_label }}">Ano de Fabricação</label>
+                        {{ form.factory_year }}
+                        {{ form.factory_year.errors }}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.model_year.id_for_label }}">Ano do Modelo</label>
+                        {{ form.model_year }}
+                        {{ form.model_year.errors }}
+                    </div>
+                </div>
+
+                <div class="section-title">Detalhes</div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="{{ form.plate.id_for_label }}">Placa</label>
+                        {{ form.plate }}
+                        {{ form.plate.errors }}
+                    </div>
+                    <div class="field">
+                        <label for="{{ form.value.id_for_label }}">Valor (R$)</label>
+                        {{ form.value }}
+                        {{ form.value.errors }}
+                    </div>
+                </div>
+
+
+                <div class="section-title">Descrição</div>
+                <div class="field" style="margin-bottom: 2.5rem;">
+                    <label for="{{ form.bio.id_for_label }}">Bio do carro</label>
+                    {{ form.bio }}
+                    {{ form.bio.errors }}
+                </div>
+
+                <div class="section-title">Foto</div>
+                {% if car.photo %}
+                <div class="current-photo">
+                    <div class="current-photo-label">Foto atual</div>
+                    <img src="{{ car.photo_large.url }}" alt="{{ car.model }}" id="currentPhoto">
+                </div>
+                {% endif %}
+
+                <div class="upload-zone" id="uploadZone">
+                    {{ form.photo }}
+                    <svg class="upload-icon" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <div class="upload-label">Clique para trocar a foto</div>
+                    <div class="upload-filename" id="uploadFilename"></div>
+                </div>
+                {{ form.photo.errors }}
+
+            </div>
+
+            <!-- ── PREVIEW SIDEBAR ── -->
+            <div class="preview-area">
+                <div class="preview-label">Preview</div>
+
+                <div class="mini-card">
+                    <div class="mini-photo">
+                        {% if car.photo %}
+                        <img id="previewImg" src="{{ car.photo_card.url }}" alt="" style="display:block;">
+                        {% else %}
+                        <img id="previewImg" src="" alt="">
+                        {% endif %}
+                        <svg id="previewPlaceholder" viewBox="0 0 24 24" stroke-width="1" {% if car.photo %}style="display:none"{% endif %}>
+                            <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/>
+                            <circle cx="7.5" cy="14.5" r="2.5"/>
+                            <circle cx="16.5" cy="14.5" r="2.5"/>
+                        </svg>
+                    </div>
+                    <div class="mini-info">
+                        <div class="mini-brand" id="previewBrand">{{ car.brand }}</div>
+                        <div class="mini-model" id="previewModel">{{ car.model }}</div>
+                        <div class="mini-stats">
+                            <div class="mini-stat">
+                                <span class="mini-stat-val" id="previewFab">{{ car.factory_year|default:"—" }}</span>
+                                <span class="mini-stat-lbl">Fab.</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-val" id="previewMod">{{ car.model_year|default:"—" }}</span>
+                                <span class="mini-stat-lbl">Modelo</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-val" id="previewPlate">{{ car.plate|default:"—" }}</span>
+                                <span class="mini-stat-lbl">Placa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-notice">
+                    ⚠ Você está editando um carro existente. As alterações são permanentes.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── SUBMIT BAR ── -->
+        <div class="submit-bar">
+            <span class="submit-hint">Editando: {{ car.brand }} {{ car.model }}</span>
+            <div class="btn-group">
+                <a href="{% url 'car_infor' car.id %}" class="btn-cancel">Cancelar</a>
+                <button type="submit" class="btn-save">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Salvar Alterações
+                </button>
+            </div>
+        </div>
+
+    </form>
+
+    <script>
+        const brandSel   = document.getElementById('id_brand');
+        const modelInput = document.getElementById('id_model');
+        const fabInput   = document.getElementById('id_factory_year');
+        const modInput   = document.getElementById('id_model_year');
+        const plateInput = document.getElementById('id_plate');
+        const photoInput = document.getElementById('id_photo');
+
+        function updatePreview() {
+            const brandText = brandSel?.options[brandSel.selectedIndex]?.text;
+            if (brandText && brandText !== '---------') document.getElementById('previewBrand').textContent = brandText;
+            document.getElementById('previewModel').textContent  = modelInput?.value || '—';
+            document.getElementById('previewFab').textContent    = fabInput?.value   || '—';
+            document.getElementById('previewMod').textContent    = modInput?.value   || '—';
+            document.getElementById('previewPlate').textContent  = plateInput?.value || '—';
+        }
+
+        [brandSel, modelInput, fabInput, modInput, plateInput].forEach(el => {
+            el?.addEventListener('input',  updatePreview);
+            el?.addEventListener('change', updatePreview);
+        });
+
+        photoInput?.addEventListener('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+            document.getElementById('uploadFilename').textContent = file.name;
+            document.getElementById('uploadFilename').style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = document.getElementById('previewImg');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                document.getElementById('previewPlaceholder').style.display = 'none';
+                const curr = document.getElementById('currentPhoto');
+                if (curr) curr.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+
+</body>
+</html>
