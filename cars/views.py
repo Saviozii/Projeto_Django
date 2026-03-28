@@ -5,6 +5,10 @@ from django.views import View
 from django.views.generic import ListView, DetailView, CreateView
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+import json
+from django.http import JsonResponse
+from cars.chatbot import chat_ollama, chat_gemini
+
 # Create your views here.
 #crie sua funcao view aqui (request)
 
@@ -134,3 +138,22 @@ def my_cars(request):
         cars = cars.filter(model__icontains=search).order_by('model')
     return render(request, 'my_cars.html', {'cars': cars})
 #==================================================================================================#
+
+def chatbot_view(request):
+    if request.method == 'POST':
+        data     = json.loads(request.body)
+        pergunta = data.get('message', '')
+        historico = data.get('history', [])
+        provider  = data.get('provider', 'ollama')
+
+        try:
+            if provider == 'gemini':
+                resposta = chat_gemini(historico, pergunta)
+            else:
+                resposta = chat_ollama(historico, pergunta)
+        except Exception as e:
+            resposta = f"Erro: {str(e)}"
+
+        return JsonResponse({'response': resposta})
+
+    return JsonResponse({'error': 'Método não permitido'}, status=405)
